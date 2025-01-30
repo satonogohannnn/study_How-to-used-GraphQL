@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
-import { Button } from './components/ui/button';
 import { gql, useQuery, useMutation } from "@apollo/client";
 
 const client = new ApolloClient({
@@ -28,7 +27,7 @@ const ADD_TODO = gql`
   }
 `;
 
-const UPDARE_TODO = gql`
+const UPDATE_TODO = gql`
   mutation UpdateTodo($id: ID!, $completed: Boolean!) {
     updateTodo(id: $id, completed: $completed) {
       id
@@ -49,7 +48,7 @@ function App() {
     fetchPolicy: "network-only",
   });
   const [addTodo] = useMutation(ADD_TODO);
-  const [updateTodo] = useMutation(UPDARE_TODO);
+  const [updateTodo] = useMutation(UPDATE_TODO);
   const [title, setTitle] = useState("");
 
   const todos = data ? data.getTodos : [];
@@ -77,6 +76,12 @@ function App() {
       <div>
         <h1>TO DO List</h1>
         <input type="text" placeholder="TODOを追加してください" />
+        <input
+          type="text"
+          placeholder='TODOを追加してください'
+          value={title}
+          onChange={(e: any) => setTitle(e.target.value)}
+        />
         <button onClick={handleAddTodo}>追加</button>
         <ul>
           {todos.map((todo: Todo) => (
