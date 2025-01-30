@@ -77,7 +77,7 @@ function App() {
       <div>
         <h1>TO DO List</h1>
         <input type="text" placeholder="TODOを追加してください" />
-        <button>追加</button>
+        <button onClick={handleAddTodo}>追加</button>
         <ul>
           {todos.map((todo: Todo) => (
             <li
