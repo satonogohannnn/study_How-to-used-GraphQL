@@ -1,17 +1,11 @@
+import { PrismaClient } from "@prisma/client";
 import { ApolloServer, gql } from "apollo-server";
 
-const todos = [
-  {
-    id: "1",
-    title: "GraphQLを勉強する",
-    completed: false,
-  },
-  {
-    id: "2",
-    title: "Reactを勉強する",
-    completed: false,
-  },
-];
+const prisma = new PrismaClient();
+
+type Context = {
+    prisma: PrismaClient;
+}
 
 const typeDefs = gql`
   type Todo {
@@ -37,39 +31,36 @@ type AddTodo = {
 
 const resolvers = {
   Query: {
-    getTodos: () => todos,
+    getTodos: async (_: unknown, args: any, context: Context) => {
+        return await context.prisma.todo.findMany();
+    },
   },
 
   Mutation: {
-    addTodo: (_: unknown, { title }: AddTodo) => {
-      const newTodo = {
-        id: String(todos.length + 1),
-        title,
-        completed: false,
-      };
-      todos.push(newTodo);
-      return newTodo;
+    addTodo: (_: unknown, { title }: AddTodo, context: Context) => {
+      return context.prisma.todo.create({
+        data: {
+            title,
+            completed: false,
+        },
+      });
     },
 
     updateTodo: (
       _: unknown,
-      { id, completed }: { id: string; completed: boolean }
+      { id, completed }: { id: string; completed: boolean },
+      context: Context
     ) => {
-      const todo = todos.find((todo) => todo.id === id);
-      if (!todo) {
-        throw new Error("Todo not found");
-      }
-      todo.completed = completed;
-      return todo;
+      return context.prisma.todo.update({
+        where: { id },
+        data: { completed },
+      })
     },
-    
-    deleteTodo: (_: unknown, { id }: { id: string }) => {
-      const index = todos.findIndex((todo) => todo.id === id);
-      if (index === -1) {
-        throw new Error("Todo not found");
-      }
-      const deletedTodo = todos.splice(index, 1);
-      return deletedTodo[0];
+
+    deleteTodo: (_: unknown, { id }: { id: string }, context: Context) => {
+      return context.prisma.todo.delete({
+        where: { id },
+      })
     },
   },
 };
@@ -77,6 +68,7 @@ const resolvers = {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: () => ({ prisma }),
 });
 
 server.listen().then(({ url }) => {
