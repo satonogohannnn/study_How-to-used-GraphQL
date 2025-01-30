@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { AnimatePresence, motion } from 'framer-motion';
+import { PlusCircle, CheckCircle2 } from 'lucide-react';
+import { Button } from './components/ui/button';
+import { Checkbox } from './components/ui/checkbox';
 
 const client = new ApolloClient({
   uri: 'http://localhost:4000',
@@ -73,33 +77,69 @@ function App() {
 
   return (
     <>
-      <div>
-        <h1>TO DO List</h1>
-        <input type="text" placeholder="TODOを追加してください" />
-        <input
-          type="text"
-          placeholder='TODOを追加してください'
-          value={title}
-          onChange={(e: any) => setTitle(e.target.value)}
-        />
-        <button onClick={handleAddTodo}>追加</button>
-        <ul>
-          {todos.map((todo: Todo) => (
-            <li
-              key={todo.id}
-              style={{
-                textDecoration: todo.completed ? "line-through" : "none",
-              }}
-            >
+      <div className='min-h-screen bg-gradiet-to-br from-teal-50 tomint-100 flex item-center justify-center p-4'>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className='w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden'
+        >
+          <div className='bg-gradient-to-r from-teal-400 te-emerald-500 p-6'>
+            <h1 className='text-3xl font-bold text-white mb-2'>TO DO List</h1>
+          </div>
+          <div className='p-6'>
+            <div className='flex mb-4'>
               <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => handleUpdateTodo(todo.id, todo.completed)}
+                type="text"
+                placeholder='タスクを追加'
+                value={title}
+                onChange={(e: any) => setTitle(e.target.value)}
+                className='flex-grow mr-2 bg-teal-50 border-teal-200 focus: ring-2 focus:border-transparent'
               />
-              {todo.title}
-            </li>
-          ))}
-        </ul>
+              <Button
+                onClick={handleAddTodo}
+                className='bg-emerald-500 hover: bg-emerald-600 text-white'
+              >
+                <PlusCircle className='w-5 h-5' />
+              </Button>
+            </div>
+
+            <AnimatePresence>
+              {todos.map((todo: Todo) => (
+                <motion.div
+                  key={todo.id}
+                  initial={{ opacity: 0, y: 20}}
+                  animate={{ opacity: 1, y: 0}}
+                  exit={{ opacity: 0, y: -100 }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex items-center mb-4 p-4 rounded-lg shadow-sm ${todo.completed ? "bg-mint-100" : "bg-white"}`}
+                >
+                  <Checkbox
+                    id={`todo-${todo.id}`}
+                    checked={todo.completed}
+                    onCheckedChange={() => handleUpdateTodo(todo.id, todo.completed)}
+                    className='mr-3 border-teal-400 text-teal-500'
+                  />
+                  <label
+                    htmlFor={`todo-${todo.id}`}
+                    className={`flex-grow text-lg ${todo.completed ? "line-through text-teal-600" : "text-gray-800"}`}
+                  >
+                    {todo.title}
+                  </label>
+                  {todo.completed && (<CheckCircle2 className='w-5 h-5 text-teal-500 ml-2' />)}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            {todos.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className='text-center text-teal-600 mt-6'
+              >
+                タスクがありません
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
       </div>
     </>
   );
