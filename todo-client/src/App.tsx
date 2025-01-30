@@ -61,6 +61,8 @@ function App() {
   if (error) return <p>Error: {error.message}</p>;
 
   const handleAddTodo = async () => {
+    if (title === "") return
+    
     await addTodo({
       variables: { title },
       refetchQueries: [{ query: GET_TODOS }]
