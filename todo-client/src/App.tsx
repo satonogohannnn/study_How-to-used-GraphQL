@@ -1,15 +1,9 @@
 import { useState } from 'react';
-import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { AnimatePresence, motion } from 'framer-motion';
 import { PlusCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Checkbox } from './components/ui/checkbox';
-
-const client = new ApolloClient({
-  uri: 'http://localhost:4000',
-  cache: new InMemoryCache()
-});
 
 const GET_TODOS = gql`
   query {
@@ -62,7 +56,7 @@ function App() {
 
   const handleAddTodo = async () => {
     if (title === "") return
-    
+
     await addTodo({
       variables: { title },
       refetchQueries: [{ query: GET_TODOS }]
@@ -147,10 +141,4 @@ function App() {
   );
 }
 
-export default function AppWrapper() {
-  return (
-    <ApolloProvider client={client}>
-      <App />
-    </ApolloProvider>
-  );
-}
+export default App;
